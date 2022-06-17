@@ -22,7 +22,7 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
-app.use(cors());
+app.use(cors({ origin: true }));
 // app.get("/", (req: Request, res: Response) => {
 //   res.send("Express + TypeScript Server");
 // });
