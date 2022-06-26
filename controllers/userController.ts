@@ -36,10 +36,25 @@ export const getAllUserAndOrders = async (req: Request, res: Response) => {
           "orders.admin": id,
         },
       },
+      {
+        $group: {
+          _id: {
+            id: "$_id",
+            name: "$name",
+            street: "$street",
+            postal: "$postal",
+            city: "$city",
+            createdAt: "$createdAt",
+            updatedAt: "$updatedAt",
+          },
+          data: {
+            $push: "$orders",
+          },
+        },
+      },
     ]);
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "something went wrong" });
   }
 };
-

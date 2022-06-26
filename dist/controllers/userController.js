@@ -90,6 +90,22 @@ var getAllUserAndOrders = function (req, res) { return __awaiter(void 0, void 0,
                                 "orders.admin": id,
                             },
                         },
+                        {
+                            $group: {
+                                _id: {
+                                    id: "$_id",
+                                    name: "$name",
+                                    street: "$street",
+                                    postal: "$postal",
+                                    city: "$city",
+                                    createdAt: "$createdAt",
+                                    updatedAt: "$updatedAt",
+                                },
+                                data: {
+                                    $push: "$orders",
+                                },
+                            },
+                        },
                     ])];
             case 1:
                 orders = _a.sent();
