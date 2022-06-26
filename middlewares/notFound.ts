@@ -1,4 +1,4 @@
 import { Request, Response } from "express";
 export const notFoundMiddleware = (req: Request, res: Response) => {
-  res.status(404).send("Route Not Found");
+  res.status(404).send({msg:"Route Not Found"});
 };

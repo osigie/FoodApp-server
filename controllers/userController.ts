@@ -17,23 +17,29 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getAllUserAndOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await userDb.find();
+    const { id } = req.user;
+    console.log(id);
+    if (!id) {
+      res.status(404).json({ message: "Not authorized" });
+    }
+
+    const orders = await userDb.aggregate([
+      {
+        $unwind: {
+          path: "$orders",
+          includeArrayIndex: "arrayIndex",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "orders.admin": id,
+        },
+      },
+    ]);
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "something went wrong" });
   }
 };
 
-
-export const getMealsbyAdmin = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.user;
-    if(!id){
-      res.status(404).json({ message: "Not authorized"})
-    }
-    const user = await userDb.find({ admin: id });
-    res.status(200).json(user);
-  } catch (error) {
-    console.log(error);
-  }
-};

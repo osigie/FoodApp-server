@@ -7,6 +7,5 @@ var express_1 = __importDefault(require("express"));
 var authMiddleware_1 = require("../middlewares/authMiddleware");
 var router = express_1.default.Router();
 var userController_1 = require("../controllers/userController");
-router.route("/user").post(userController_1.createUser).get(userController_1.getAllUserAndOrders);
-router.route("/user/admin").get(authMiddleware_1.protectRoutes, userController_1.getMealsbyAdmin);
+router.route("/user").post(userController_1.createUser).get(authMiddleware_1.protectRoutes, userController_1.getAllUserAndOrders);
 exports.default = router;

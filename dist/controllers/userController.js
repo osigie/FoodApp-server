@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMealsbyAdmin = exports.getAllUserAndOrders = exports.createUser = void 0;
+exports.getAllUserAndOrders = exports.createUser = void 0;
 var users_1 = __importDefault(require("../models/users"));
 var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, name_1, street, postal, city, orders, user, error_1;
@@ -67,12 +67,30 @@ var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, 
 }); };
 exports.createUser = createUser;
 var getAllUserAndOrders = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var orders, error_2;
+    var id, orders, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, users_1.default.find()];
+                id = req.user.id;
+                console.log(id);
+                if (!id) {
+                    res.status(404).json({ message: "Not authorized" });
+                }
+                return [4 /*yield*/, users_1.default.aggregate([
+                        {
+                            $unwind: {
+                                path: "$orders",
+                                includeArrayIndex: "arrayIndex",
+                                preserveNullAndEmptyArrays: true,
+                            },
+                        },
+                        {
+                            $match: {
+                                "orders.admin": id,
+                            },
+                        },
+                    ])];
             case 1:
                 orders = _a.sent();
                 res.status(200).json(orders);
@@ -86,27 +104,3 @@ var getAllUserAndOrders = function (req, res) { return __awaiter(void 0, void 0,
     });
 }); };
 exports.getAllUserAndOrders = getAllUserAndOrders;
-var getMealsbyAdmin = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, user, error_3;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _a.trys.push([0, 2, , 3]);
-                id = req.user.id;
-                if (!id) {
-                    res.status(404).json({ message: "Not authorized" });
-                }
-                return [4 /*yield*/, users_1.default.find({ admin: id })];
-            case 1:
-                user = _a.sent();
-                res.status(200).json(user);
-                return [3 /*break*/, 3];
-            case 2:
-                error_3 = _a.sent();
-                console.log(error_3);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
-        }
-    });
-}); };
-exports.getMealsbyAdmin = getMealsbyAdmin;

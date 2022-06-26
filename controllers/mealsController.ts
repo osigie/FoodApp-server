@@ -92,4 +92,15 @@ export const deleteMeals = async (req: Request, res: Response) => {
   }
 };
 
-
+export const getAdminMeals = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.user;
+    if (!id) {
+      res.status(404).json({ message: "Not authorized" });
+    }
+    const meals = await mealsDb.find({ admin: id });
+    res.status(200).json(meals);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

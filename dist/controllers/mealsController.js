@@ -50,7 +50,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMeals = exports.updateMeal = exports.getOneMeal = exports.getMeals = exports.createMeals = void 0;
+exports.getAdminMeals = exports.deleteMeals = exports.updateMeal = exports.getOneMeal = exports.getMeals = exports.createMeals = void 0;
 var meals_1 = __importDefault(require("../models/meals"));
 var http_status_codes_1 = require("http-status-codes");
 var meals_2 = __importDefault(require("../models/meals"));
@@ -198,3 +198,27 @@ var deleteMeals = function (req, res) { return __awaiter(void 0, void 0, void 0,
     });
 }); };
 exports.deleteMeals = deleteMeals;
+var getAdminMeals = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, meals_4, error_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                id = req.user.id;
+                if (!id) {
+                    res.status(404).json({ message: "Not authorized" });
+                }
+                return [4 /*yield*/, meals_1.default.find({ admin: id })];
+            case 1:
+                meals_4 = _a.sent();
+                res.status(200).json(meals_4);
+                return [3 /*break*/, 3];
+            case 2:
+                error_6 = _a.sent();
+                res.status(500).json({ message: "Internal Server Error" });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.getAdminMeals = getAdminMeals;
