@@ -5,6 +5,7 @@ const dotenv = require("dotenv").config();
 
 const secret = process.env.JWT_SECRET as string;
 
+
 interface Token {
   id: string;
 }

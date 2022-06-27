@@ -55,6 +55,10 @@ export const updateMeal = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { id: admin } = req.user;
+    if (!admin) {
+      res.status(404).json({ message: "Not authorized" });
+      return;
+    }
     const updateBody = req.body;
 
     const meal = await mealsDb.findOne({ admin });

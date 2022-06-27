@@ -145,6 +145,10 @@ var updateMeal = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 _a.trys.push([0, 3, , 4]);
                 id = req.params.id;
                 admin = req.user.id;
+                if (!admin) {
+                    res.status(404).json({ message: "Not authorized" });
+                    return [2 /*return*/];
+                }
                 updateBody = req.body;
                 return [4 /*yield*/, meals_1.default.findOne({ admin: admin })];
             case 1:
