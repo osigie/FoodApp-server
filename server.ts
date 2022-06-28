@@ -22,7 +22,15 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
-app.use(cors({ origin: true }));
+const corsOptions = {
+  origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
+// app.use(cors({ origin: true }));
 // app.get("/", (req: Request, res: Response) => {
 //   res.send("Express + TypeScript Server");
 // });

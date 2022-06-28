@@ -18,7 +18,6 @@ export const createUser = async (req: Request, res: Response) => {
 export const getAllUserAndOrders = async (req: Request, res: Response) => {
   try {
     const { id } = req.user;
-    console.log(id);
     if (!id) {
       res.status(404).json({ message: "Not authorized" });
     }

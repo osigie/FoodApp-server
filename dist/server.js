@@ -56,7 +56,13 @@ var port = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== "production") {
     app.use((0, morgan_1.default)("dev"));
 }
-app.use((0, cors_1.default)({ origin: true }));
+var corsOptions = {
+    origin: "*",
+    credentials: true,
+    optionSuccessStatus: 200,
+};
+app.use((0, cors_1.default)(corsOptions));
+// app.use(cors({ origin: true }));
 // app.get("/", (req: Request, res: Response) => {
 //   res.send("Express + TypeScript Server");
 // });

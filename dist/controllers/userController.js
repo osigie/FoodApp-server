@@ -73,7 +73,6 @@ var getAllUserAndOrders = function (req, res) { return __awaiter(void 0, void 0,
             case 0:
                 _a.trys.push([0, 2, , 3]);
                 id = req.user.id;
-                console.log(id);
                 if (!id) {
                     res.status(404).json({ message: "Not authorized" });
                 }
