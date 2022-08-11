@@ -50,34 +50,31 @@ var notFound_1 = require("./middlewares/notFound");
 var express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 var helmet_1 = __importDefault(require("helmet"));
 var cors_1 = __importDefault(require("cors"));
+var cookie_parser_1 = __importDefault(require("cookie-parser"));
+var errorMiddleware_1 = require("./middlewares/errorMiddleware");
+// import handleError from "./middlewares/testError";
 dotenv_1.default.config();
 var app = (0, express_1.default)();
 var port = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== "production") {
     app.use((0, morgan_1.default)("dev"));
 }
+app.use((0, cookie_parser_1.default)());
 var corsOptions = {
     origin: "*",
     credentials: true,
     optionSuccessStatus: 200,
 };
 app.use((0, cors_1.default)(corsOptions));
-// app.use(cors({ origin: true }));
-// app.get("/", (req: Request, res: Response) => {
-//   res.send("Express + TypeScript Server");
-// });
-// const __dirname = dirname(fileURLToPath(import.meta.url));
-// app.use(express.static(path.join(__dirname, "..", "./client/public")));
 app.use(express_1.default.json());
 app.use((0, helmet_1.default)());
 app.use((0, express_mongo_sanitize_1.default)());
 app.use("/", userRoutes_1.default);
 app.use("/", adminRoutes_1.default);
 app.use("/", mealsRoute_1.default);
-// app.get("*", (req: Request, res: Response) => {
-//   res.sendFile(path.join(__dirname, "..", "./client/build", "index.html"));
-// });
 app.use(notFound_1.notFoundMiddleware);
+app.use(errorMiddleware_1.errorHandlerMiddleware);
+// app.use(handleError);
 var start = function () { return __awaiter(void 0, void 0, void 0, function () {
     var error_1;
     return __generator(this, function (_a) {

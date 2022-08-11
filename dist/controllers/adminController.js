@@ -39,37 +39,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.register = void 0;
+exports.refreshToken = exports.login = exports.register = void 0;
 var admin_1 = __importDefault(require("../models/admin"));
+var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var express_async_handler_1 = __importDefault(require("express-async-handler"));
 var utils_1 = require("../utils");
-var http_status_codes_1 = require("http-status-codes");
-var register = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name_1, email, password, isExist, hashedPassword, admin, token, error_1;
+var BadRequest_1 = require("../Errors/BadRequest");
+var secret = process.env.JWT_SECRET;
+exports.register = (0, express_async_handler_1.default)(function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, name, email, password, isExist, hashedPassword, admin, token, refreshToken_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 5, , 6]);
-                _a = req.body, name_1 = _a.name, email = _a.email, password = _a.password;
-                if (!name_1 || !email || !password) {
-                    res
-                        .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                        .json({ message: "Please add all fields" });
+                _a = req.body, name = _a.name, email = _a.email, password = _a.password;
+                if (!name || !email || !password) {
+                    // res
+                    //   .status(StatusCodes.BAD_REQUEST)
+                    //   .json({ message: "Please add all fields" });
+                    throw new BadRequest_1.BadRequest("Please add all fields");
                 }
                 return [4 /*yield*/, admin_1.default.findOne({ email: email })];
             case 1:
                 isExist = _b.sent();
                 if (isExist) {
-                    res
-                        .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                        .json({ message: "Admin already exists" });
-                    return [2 /*return*/];
+                    // res
+                    //   .status(StatusCodes.BAD_REQUEST)
+                    //   .json({ message: "Admin already exists" });
+                    // return;
+                    throw new BadRequest_1.BadRequest("Admin already exists");
                 }
                 return [4 /*yield*/, (0, utils_1.hashing)(password)];
             case 2:
                 hashedPassword = _b.sent();
                 //Create Admin
                 return [4 /*yield*/, admin_1.default.create({
-                        name: name_1,
+                        name: name,
                         email: email,
                         password: hashedPassword,
                     })];
@@ -79,26 +83,25 @@ var register = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                 return [4 /*yield*/, admin_1.default.findOne({ email: email })];
             case 4:
                 admin = _b.sent();
-                token = (0, utils_1.generateToken)(admin._id);
-                admin
-                    ? res.status(201).json({ admin: { _id: admin.id, name: name_1, email: email }, token: token })
-                    : res.status(400).json({ message: "Invalid admin data" });
-                return [3 /*break*/, 6];
-            case 5:
-                error_1 = _b.sent();
-                console.log(error_1);
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                if (admin) {
+                    token = (0, utils_1.generateToken)(admin._id);
+                    refreshToken_1 = (0, utils_1.generateRefreshToken)(admin._id);
+                    (0, utils_1.sendRefreshToken)(res, refreshToken_1);
+                    res.status(201).json({ admin: { _id: admin.id, name: name, email: email }, token: token });
+                }
+                else {
+                    // res.status(400).json({ message: "Invalid admin data" });
+                    throw new BadRequest_1.BadRequest("Invalid admin data");
+                }
+                return [2 /*return*/];
         }
     });
-}); };
-exports.register = register;
-var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, email, password, admin, matchPassword, token, error_2;
+}); });
+exports.login = (0, express_async_handler_1.default)(function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, email, password, admin, matchPassword, token, refreshToken;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 3, , 4]);
                 _a = req.body, email = _a.email, password = _a.password;
                 return [4 /*yield*/, admin_1.default.findOne({ email: email })];
             case 1:
@@ -107,6 +110,8 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
             case 2:
                 matchPassword = _b.sent();
                 token = (0, utils_1.generateToken)(admin._id);
+                refreshToken = (0, utils_1.generateRefreshToken)(admin._id);
+                (0, utils_1.sendRefreshToken)(res, refreshToken);
                 if (admin && matchPassword) {
                     res
                         .status(200)
@@ -114,21 +119,44 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                     return [2 /*return*/];
                 }
                 else {
-                    res;
-                    res
-                        .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                        .json({ message: "Invalid Credentails" });
-                    return [2 /*return*/];
+                    // res;
+                    // res
+                    //   .status(StatusCodes.BAD_REQUEST)
+                    //   .json({ message: "Invalid Credentails" });
+                    // return;
+                    throw new BadRequest_1.BadRequest("Invalid credentials");
                 }
-                return [3 /*break*/, 4];
-            case 3:
-                error_2 = _b.sent();
-                res
-                    .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                    .json({ message: "Invalid Credentails" });
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [2 /*return*/];
+        }
+    });
+}); });
+var refreshToken = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var cookieFromClient, payload, admin, refreshToken;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                cookieFromClient = req.cookies.hp;
+                if (!cookieFromClient) {
+                    return [2 /*return*/, res.status(200).json({ ok: false, accessToken: "" })];
+                }
+                try {
+                    payload = jsonwebtoken_1.default.verify(cookieFromClient, secret);
+                }
+                catch (error) {
+                    return [2 /*return*/, res.status(200).json({ ok: false, accessToken: "" })];
+                }
+                return [4 /*yield*/, admin_1.default.findOne({ _id: payload.id })];
+            case 1:
+                admin = _a.sent();
+                if (!admin) {
+                    return [2 /*return*/, res.status(200).json({ ok: false, accessToken: "" })];
+                }
+                refreshToken = (0, utils_1.generateRefreshToken)(admin._id);
+                (0, utils_1.sendRefreshToken)(res, refreshToken);
+                return [2 /*return*/, res
+                        .status(200)
+                        .json({ ok: true, accessToken: (0, utils_1.generateToken)(admin._id) })];
         }
     });
 }); };
-exports.login = login;
+exports.refreshToken = refreshToken;

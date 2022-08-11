@@ -28,12 +28,12 @@ export const protectRoutes = async (
       //Verify token
       const decoded = jwt.verify(token, secret) as Token;
 
+
       //Get user from the token
       req.user = await AdminDb.findById(decoded.id).select("-password");
 
       next();
     } catch (error) {
-      console.log(error);
       return res.status(401).json({ message: "Not authorized" });
     }
   }

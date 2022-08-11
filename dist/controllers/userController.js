@@ -41,40 +41,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllUserAndOrders = exports.createUser = void 0;
 var users_1 = __importDefault(require("../models/users"));
-var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name_1, street, postal, city, orders, user, error_1;
+var express_async_handler_1 = __importDefault(require("express-async-handler"));
+var BadRequest_1 = require("../Errors/BadRequest");
+var UnauthorizedRequest_1 = require("../Errors/UnauthorizedRequest");
+exports.createUser = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, name, street, postal, city, orders, user;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
-                _a = req.body, name_1 = _a.name, street = _a.street, postal = _a.postal, city = _a.city, orders = _a.orders;
-                if (!name_1 || !street || !postal || !city || !orders) {
-                    res.status(400).json({ message: "please input all fields" });
-                    return [2 /*return*/];
+                _a = req.body, name = _a.name, street = _a.street, postal = _a.postal, city = _a.city, orders = _a.orders;
+                if (!name || !street || !postal || !city || !orders) {
+                    // res.status(400).json({ message: "please input all fields" });
+                    // return;
+                    throw new BadRequest_1.BadRequest("Please input all fields");
                 }
-                return [4 /*yield*/, users_1.default.create({ name: name_1, street: street, city: city, postal: postal, orders: orders })];
+                return [4 /*yield*/, users_1.default.create({ name: name, street: street, city: city, postal: postal, orders: orders })];
             case 1:
                 user = _b.sent();
                 res.status(201).json({ message: "user created" });
-                return [3 /*break*/, 3];
-            case 2:
-                error_1 = _b.sent();
-                res.status(500).json({ message: "something went wrong" });
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
-}); };
-exports.createUser = createUser;
-var getAllUserAndOrders = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, orders, error_2;
+}); });
+exports.getAllUserAndOrders = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, orders;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
                 id = req.user.id;
                 if (!id) {
-                    res.status(404).json({ message: "Not authorized" });
+                    // res.status(404).json({ message: "Not authorized" });
+                    throw new UnauthorizedRequest_1.UnauthorizedRequest("Not authorized");
                 }
                 return [4 /*yield*/, users_1.default.aggregate([
                         {
@@ -109,13 +106,7 @@ var getAllUserAndOrders = function (req, res) { return __awaiter(void 0, void 0,
             case 1:
                 orders = _a.sent();
                 res.status(200).json(orders);
-                return [3 /*break*/, 3];
-            case 2:
-                error_2 = _a.sent();
-                res.status(500).json({ message: "something went wrong" });
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
-}); };
-exports.getAllUserAndOrders = getAllUserAndOrders;
+}); });

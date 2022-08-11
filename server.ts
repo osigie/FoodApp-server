@@ -9,9 +9,9 @@ import { notFoundMiddleware } from "./middlewares/notFound";
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
 import cors from "cors";
-// import { dirname } from "path";
-// import { fileURLToPath } from "url";
-import path from "path";
+import cookieParser from "cookie-parser";
+import { errorHandlerMiddleware } from "./middlewares/errorMiddleware";
+// import handleError from "./middlewares/testError";
 
 dotenv.config();
 
@@ -22,6 +22,8 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
+app.use(cookieParser());
+
 const corsOptions = {
   origin: "*",
   credentials: true, //access-control-allow-credentials:true
@@ -30,13 +32,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// app.use(cors({ origin: true }));
-// app.get("/", (req: Request, res: Response) => {
-//   res.send("Express + TypeScript Server");
-// });
-
-// const __dirname = dirname(fileURLToPath(import.meta.url));
-// app.use(express.static(path.join(__dirname, "..", "./client/public")));
 app.use(express.json());
 app.use(helmet());
 app.use(mongoSanitize());
@@ -45,11 +40,10 @@ app.use("/", userRouter);
 app.use("/", adminRouter);
 app.use("/", mealsRouter);
 
-// app.get("*", (req: Request, res: Response) => {
-//   res.sendFile(path.join(__dirname, "..", "./client/build", "index.html"));
-// });
-
 app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+// app.use(handleError);
+
 const start = async () => {
   try {
     await connectDb(process.env.MONGO_URL as string);

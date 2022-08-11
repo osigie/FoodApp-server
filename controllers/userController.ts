@@ -1,25 +1,31 @@
 import userDb from "../models/users";
 import { NextFunction, Request, Response } from "express";
+import asyncHandler from "express-async-handler";
+import { BadRequest } from "../Errors/BadRequest";
+import { UnauthorizedRequest } from "../Errors/UnauthorizedRequest";
 
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const { name, street, postal, city, orders } = req.body;
-    if (!name || !street || !postal || !city || !orders) {
-      res.status(400).json({ message: "please input all fields" });
-      return;
-    }
-    const user = await userDb.create({ name, street, city, postal, orders });
-    res.status(201).json({ message: "user created" });
-  } catch (error) {
-    res.status(500).json({ message: "something went wrong" });
+export const createUser = asyncHandler(async (req: Request, res: Response) => {
+  // try {
+  const { name, street, postal, city, orders } = req.body;
+  if (!name || !street || !postal || !city || !orders) {
+    // res.status(400).json({ message: "please input all fields" });
+    // return;
+    throw new BadRequest("Please input all fields");
   }
-};
+  const user = await userDb.create({ name, street, city, postal, orders });
+  res.status(201).json({ message: "user created" });
+  // } catch (error) {
+  // res.status(500).json({ message: "something went wrong" });
+  // }
+});
 
-export const getAllUserAndOrders = async (req: Request, res: Response) => {
-  try {
+export const getAllUserAndOrders = asyncHandler(
+  async (req: Request, res: Response) => {
+    // try {
     const { id } = req.user;
     if (!id) {
-      res.status(404).json({ message: "Not authorized" });
+      // res.status(404).json({ message: "Not authorized" });
+      throw new UnauthorizedRequest("Not authorized");
     }
 
     const orders = await userDb.aggregate([
@@ -53,7 +59,8 @@ export const getAllUserAndOrders = async (req: Request, res: Response) => {
       },
     ]);
     res.status(200).json(orders);
-  } catch (error) {
-    res.status(500).json({ message: "something went wrong" });
+    // } catch (error) {
+    // res.status(500).json({ message: "something went wrong" });
+    // }
   }
-};
+);

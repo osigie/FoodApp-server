@@ -15,4 +15,5 @@ var limiter = (0, express_rate_limit_1.default)({
 });
 router.route("/admin/register").post((0, validation_1.validate)(validation_1.AdminSchema), adminController_1.register);
 router.route("/admin/login").post(adminController_1.login);
+router.route("/refresh_token").post(adminController_1.refreshToken);
 exports.default = router;

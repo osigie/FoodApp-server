@@ -54,175 +54,161 @@ exports.getAdminMeals = exports.deleteMeals = exports.updateMeal = exports.getOn
 var meals_1 = __importDefault(require("../models/meals"));
 var http_status_codes_1 = require("http-status-codes");
 var meals_2 = __importDefault(require("../models/meals"));
-var createMeals = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, _a, name_1, description, amount, price, mealsCreated, error_1;
+var express_async_handler_1 = __importDefault(require("express-async-handler"));
+var UnauthorizedRequest_1 = require("../Errors/UnauthorizedRequest");
+var BadRequest_1 = require("../Errors/BadRequest");
+var NotFound_1 = require("../Errors/NotFound");
+exports.createMeals = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, _a, name, description, amount, price, mealsCreated;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 id = req.user.id;
                 if (!id) {
-                    res.status(404).json({ message: "Not authorized" });
-                    return [2 /*return*/];
+                    // res.status(404).json({ message: "Not authorized" });
+                    // return;
+                    throw new UnauthorizedRequest_1.UnauthorizedRequest("Not authorized");
                 }
-                _b.label = 1;
-            case 1:
-                _b.trys.push([1, 3, , 4]);
-                _a = req.body, name_1 = _a.name, description = _a.description, amount = _a.amount, price = _a.price;
+                _a = req.body, name = _a.name, description = _a.description, amount = _a.amount, price = _a.price;
                 return [4 /*yield*/, meals_2.default.create({
-                        name: name_1,
+                        name: name,
                         description: description,
                         amount: amount,
                         price: price,
                         admin: id,
                     })];
-            case 2:
-                mealsCreated = _b.sent();
-                mealsCreated
-                    ? res
-                        .status(http_status_codes_1.StatusCodes.CREATED)
-                        .json({ message: "Meal successfully created" })
-                    : res
-                        .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                        .json({ message: "Please input all fields" });
-                return [3 /*break*/, 4];
-            case 3:
-                error_1 = _b.sent();
-                console.log(error_1);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
-        }
-    });
-}); };
-exports.createMeals = createMeals;
-var getMeals = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var meals_3, error_2;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, meals_1.default.find()];
             case 1:
-                meals_3 = _a.sent();
-                res.status(200).json(meals_3);
-                return [3 /*break*/, 3];
-            case 2:
-                error_2 = _a.sent();
-                console.log(error_2);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                mealsCreated = _b.sent();
+                if (mealsCreated) {
+                    res
+                        .status(http_status_codes_1.StatusCodes.CREATED)
+                        .json({ message: "Meal successfully created" });
+                }
+                else {
+                    throw new BadRequest_1.BadRequest("Please input all fields");
+                }
+                return [2 /*return*/];
         }
     });
-}); };
-exports.getMeals = getMeals;
-var getOneMeal = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, meal, error_3;
+}); });
+exports.getMeals = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var meals;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, meals_1.default.find()];
+            case 1:
+                meals = _a.sent();
+                res.status(200).json(meals);
+                if (!meals) {
+                    throw new NotFound_1.NotFound("meals not found");
+                }
+                return [2 /*return*/];
+        }
+    });
+}); });
+exports.getOneMeal = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, meal;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
                 id = req.params.id;
                 return [4 /*yield*/, meals_1.default.findOne({ _id: id })];
             case 1:
                 meal = _a.sent();
-                meal
-                    ? res.status(200).json(meal)
-                    : res.status(400).json({ message: "Meal not found" });
-                return [3 /*break*/, 3];
-            case 2:
-                error_3 = _a.sent();
-                console.log(error_3);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                if (meal) {
+                    res.status(200).json(meal);
+                }
+                else {
+                    throw new NotFound_1.NotFound("Meal not found");
+                }
+                return [2 /*return*/];
         }
     });
-}); };
-exports.getOneMeal = getOneMeal;
-var updateMeal = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, admin, updateBody, meal, update, error_4;
+}); });
+exports.updateMeal = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, admin, updateBody, meal, update;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
                 id = req.params.id;
                 admin = req.user.id;
+                // if (!admin) {
+                //   res.status(404).json({ message: "Not authorized" });
+                //   return;
+                // }
                 if (!admin) {
-                    res.status(404).json({ message: "Not authorized" });
-                    return [2 /*return*/];
+                    throw new UnauthorizedRequest_1.UnauthorizedRequest("Not authorized");
                 }
                 updateBody = req.body;
                 return [4 /*yield*/, meals_1.default.findOne({ admin: admin })];
             case 1:
                 meal = _a.sent();
+                // if (!meal) {
+                //   res.status(404).json({ message: "meal not found" });
+                //   return;
+                // }
                 if (!meal) {
-                    res.status(404).json({ message: "meal not found" });
-                    return [2 /*return*/];
+                    throw new NotFound_1.NotFound("meal not found");
                 }
                 return [4 /*yield*/, meals_1.default.findOneAndUpdate({ _id: id }, __assign({}, updateBody), { new: true })];
             case 2:
                 update = _a.sent();
                 res.status(200).json(update);
-                return [3 /*break*/, 4];
-            case 3:
-                error_4 = _a.sent();
-                res.status(500).json({ message: "Internal Server Error" });
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
-}); };
-exports.updateMeal = updateMeal;
-var deleteMeals = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, admin, meal, deleted, error_5;
+}); });
+exports.deleteMeals = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, admin, meal, deleted;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
                 id = req.params.id;
                 admin = req.user.id;
                 return [4 /*yield*/, meals_1.default.findOne({ admin: admin })];
             case 1:
                 meal = _a.sent();
+                // if (!meal) {
+                //   res.status(404).json({ message: "Not authorized" });
+                //   return;
+                // }
                 if (!meal) {
-                    res.status(404).json({ message: "Not authorized" });
-                    return [2 /*return*/];
+                    throw new UnauthorizedRequest_1.UnauthorizedRequest("Not authorized");
                 }
                 return [4 /*yield*/, meals_1.default.findByIdAndDelete({ _id: id })];
             case 2:
                 deleted = _a.sent();
-                deleted
-                    ? res.status(200).json({ message: "Meal deleted successfully" })
-                    : res.status(404).json({ message: "Meal not found" });
-                return [3 /*break*/, 4];
-            case 3:
-                error_5 = _a.sent();
-                console.log(error_5);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                // deleted
+                //   ? res.status(200).json({ message: "Meal deleted successfully" })
+                //   : res.status(404).json({ message: "Meal not found" });
+                if (deleted) {
+                    res.status(200).json({ message: "Meal deleted successfully" });
+                }
+                else {
+                    throw new NotFound_1.NotFound("Meal not found");
+                }
+                return [2 /*return*/];
         }
     });
-}); };
-exports.deleteMeals = deleteMeals;
-var getAdminMeals = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, meals_4, error_6;
+}); });
+exports.getAdminMeals = (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, meals;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
                 id = req.user.id;
                 if (!id) {
-                    res.status(404).json({ message: "Not authorized" });
+                    // res.status(404).json({ message: "Not authorized" });
+                    throw new UnauthorizedRequest_1.UnauthorizedRequest("Not authorized");
                 }
                 return [4 /*yield*/, meals_1.default.find({ admin: id })];
             case 1:
-                meals_4 = _a.sent();
-                res.status(200).json(meals_4);
-                return [3 /*break*/, 3];
-            case 2:
-                error_6 = _a.sent();
-                res.status(500).json({ message: "Internal Server Error" });
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                meals = _a.sent();
+                res.status(200).json(meals);
+                if (!meals) {
+                    throw new NotFound_1.NotFound("Meals not found");
+                }
+                return [2 /*return*/];
         }
     });
-}); };
-exports.getAdminMeals = getAdminMeals;
+}); });

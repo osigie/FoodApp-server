@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.comparePassword = exports.hashing = exports.generateToken = void 0;
+exports.sendRefreshToken = exports.comparePassword = exports.hashing = exports.generateRefreshToken = exports.generateToken = void 0;
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var dotenv_1 = __importDefault(require("dotenv"));
@@ -47,9 +47,14 @@ dotenv_1.default.config();
 var secret = process.env.JWT_SECRET;
 //generate token
 var generateToken = function (id) {
-    return jsonwebtoken_1.default.sign({ id: id }, secret, { expiresIn: "30d" });
+    return jsonwebtoken_1.default.sign({ id: id }, secret, { expiresIn: "5m" });
 };
 exports.generateToken = generateToken;
+//generate refresh token
+var generateRefreshToken = function (id) {
+    return jsonwebtoken_1.default.sign({ id: id }, secret, { expiresIn: "7d" });
+};
+exports.generateRefreshToken = generateRefreshToken;
 //Hash Password
 var hashing = function (password) { return __awaiter(void 0, void 0, void 0, function () {
     var salt, hashedPassword;
@@ -79,3 +84,14 @@ var comparePassword = function (currentPassword, oldPassword) { return __awaiter
     });
 }); };
 exports.comparePassword = comparePassword;
+var sendRefreshToken = function (res, refreshToken) {
+    res.cookie("hp", refreshToken, {
+        // maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true,
+        path: "/refresh_token",
+    });
+};
+exports.sendRefreshToken = sendRefreshToken;
+var asyncHandler = function (fn) { return function (req, res, next) {
+    return Promise.resolve(fn(req, res, next)).catch(next);
+}; };

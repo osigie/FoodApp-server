@@ -8,7 +8,7 @@ const AdminSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 20,
     trim: true,
-  },
+  }, 
   email: {
     type: String,
     required: [true, "Please provide email"],
